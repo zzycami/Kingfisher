@@ -24,6 +24,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 
+#if !os(watchOS)
 
 #if os(macOS)
 import AppKit
@@ -340,10 +341,15 @@ extension KingfisherWrapper where Base: ImageView {
                 
                 base.addSubview(view)
                 view.translatesAutoresizingMaskIntoConstraints = false
-                view.centerXAnchor.constraint(
-                    equalTo: base.centerXAnchor, constant: newIndicator.centerOffset.x).isActive = true
-                view.centerYAnchor.constraint(
-                    equalTo: base.centerYAnchor, constant: newIndicator.centerOffset.y).isActive = true
+                if #available(iOS 9.0, *) {
+                    view.centerXAnchor.constraint(
+                        equalTo: base.centerXAnchor, constant: newIndicator.centerOffset.x).isActive = true
+                    view.centerYAnchor.constraint(
+                        equalTo: base.centerYAnchor, constant: newIndicator.centerOffset.y).isActive = true
+                } else {
+                    NSLayoutConstraint(item: view, attribute: .centerX, relatedBy: .equal, toItem: base, attribute: .centerX, multiplier: 1, constant: newIndicator.centerOffset.x).isActive = true
+                    NSLayoutConstraint(item: view, attribute: .centerY, relatedBy: .equal, toItem: base, attribute: .centerY, multiplier: 1, constant: newIndicator.centerOffset.y).isActive = true
+                }
                 
                 newIndicator.view.isHidden = true
             }
@@ -392,3 +398,5 @@ extension KingfisherWrapper where Base: ImageView {
         set { }
     }
 }
+
+#endif

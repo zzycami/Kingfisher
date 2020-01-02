@@ -62,11 +62,18 @@ extension Placeholder where Self: View {
     public func add(to imageView: ImageView) {
         imageView.addSubview(self)
         translatesAutoresizingMaskIntoConstraints = false
-
-        centerXAnchor.constraint(equalTo: imageView.centerXAnchor).isActive = true
-        centerYAnchor.constraint(equalTo: imageView.centerYAnchor).isActive = true
-        heightAnchor.constraint(equalTo: imageView.heightAnchor).isActive = true
-        widthAnchor.constraint(equalTo: imageView.widthAnchor).isActive = true
+        
+        if #available(iOS 9.0, *) {
+            centerXAnchor.constraint(equalTo: imageView.centerXAnchor).isActive = true
+            centerYAnchor.constraint(equalTo: imageView.centerYAnchor).isActive = true
+            heightAnchor.constraint(equalTo: imageView.heightAnchor).isActive = true
+            widthAnchor.constraint(equalTo: imageView.widthAnchor).isActive = true
+        } else {
+            NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: imageView, attribute: .centerX, multiplier: 1, constant: 0).isActive = true
+            NSLayoutConstraint(item: self, attribute: .centerY, relatedBy: .equal, toItem: imageView, attribute: .centerY, multiplier: 1, constant: 0).isActive = true
+            NSLayoutConstraint(item: self, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .height, multiplier: 1, constant: 0).isActive = true
+            NSLayoutConstraint(item: self, attribute: .width, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0).isActive = true
+        }
     }
 
     /// How the placeholder should be removed from a given image view.
