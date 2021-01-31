@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "Kingfisher"
-  s.version      = "6.0.1"
+  s.version      = "5.8.0"
   s.summary      = "A lightweight and pure Swift implemented library for downloading and cacheing image from the web."
 
   s.description  = <<-DESC
@@ -38,6 +38,7 @@ Pod::Spec.new do |s|
   s.private_header_files = "Sources/Kingfisher.h"
 
   s.requires_arc = true
+  s.dependency  'YMHTTP'
   s.frameworks = "CFNetwork", "Accelerate"
   s.weak_frameworks = "SwiftUI", "Combine"
 end
