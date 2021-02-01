@@ -30,6 +30,8 @@ import AppKit
 import UIKit
 #endif
 
+import YMHTTP
+
 typealias DownloadResult = Result<ImageLoadingResult, KingfisherError>
 
 /// Represents a success result of an image downloading progress.
@@ -121,10 +123,10 @@ open class ImageDownloader {
     ///
     /// You could change the configuration before a downloading task starts.
     /// A configuration without persistent storage for caches is requested for downloader working correctly.
-    open var sessionConfiguration = URLSessionConfiguration.ephemeral {
+    open var sessionConfiguration = YMURLSessionConfiguration.default {
         didSet {
             session.invalidateAndCancel()
-            session = URLSession(configuration: sessionConfiguration, delegate: sessionDelegate, delegateQueue: nil)
+            session = YMURLSession(configuration: sessionConfiguration, delegate: sessionDelegate, delegateQueue: nil)
         }
     }
     
@@ -140,7 +142,7 @@ open class ImageDownloader {
 
     private let name: String
     private let sessionDelegate: SessionDelegate
-    private var session: URLSession
+    private var session: YMURLSession
 
     // MARK: Initializers
 
@@ -156,7 +158,7 @@ open class ImageDownloader {
         self.name = name
 
         sessionDelegate = SessionDelegate()
-        session = URLSession(
+        session = YMURLSession(
             configuration: sessionConfiguration,
             delegate: sessionDelegate,
             delegateQueue: nil)
@@ -237,15 +239,13 @@ open class ImageDownloader {
         }
 
         // Creates default request.
-        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: downloadTimeout)
-        request.httpShouldUsePipelining = requestsUsePipelining
-        if #available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *) , options.lowDataModeSource != nil {
-            request.allowsConstrainedNetworkAccess = false
-        }
+        var request = NSMutableURLRequest(url: url, cachePolicy: NSURLRequest.CachePolicy.reloadIgnoringCacheData, timeoutInterval: downloadTimeout)
+        request.ym_skipSSLVerify = false
+//        request.httpShouldUsePipelining = requestsUsePipelining
 
         if let requestModifier = options.requestModifier {
             // Modifies request before sending.
-            requestModifier.modified(for: request) { result in
+            requestModifier.modified(for: request as URLRequest) { result in
                 guard let finalRequest = result else {
                     done(.failure(KingfisherError.requestError(reason: .emptyRequest)))
                     return
@@ -253,7 +253,7 @@ open class ImageDownloader {
                 checkRequestAndDone(r: finalRequest)
             }
         } else {
-            checkRequestAndDone(r: request)
+            checkRequestAndDone(r: request as URLRequest)
         }
     }
 
@@ -267,8 +267,8 @@ open class ImageDownloader {
         if let existingTask = sessionDelegate.task(for: context.url) {
             downloadTask = sessionDelegate.append(existingTask, url: context.url, callback: callback)
         } else {
-            let sessionDataTask = session.dataTask(with: context.request)
-            sessionDataTask.priority = context.options.downloadPriority
+            let sessionDataTask = session.task(with: context.request)
+//            sessionDataTask.priority = context.options.downloadPriority
             downloadTask = sessionDelegate.add(sessionDataTask, url: context.url, callback: callback)
         }
         return downloadTask

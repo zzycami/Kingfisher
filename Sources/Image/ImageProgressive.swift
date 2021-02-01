@@ -26,6 +26,7 @@
 
 import Foundation
 import CoreGraphics
+import YMHTTP
 
 private let sharedProcessingQueue: CallbackQueue =
     .dispatch(DispatchQueue(label: "com.onevcat.Kingfisher.ImageDownloader.Process"))
@@ -66,7 +67,7 @@ final class ImageProgressiveProvider: DataReceivingSideEffect {
     
     var onShouldApply: () -> Bool = { return true }
     
-    func onDataReceived(_ session: URLSession, task: SessionDataTask, data: Data) {
+    func onDataReceived(_ session: YMURLSession, task: SessionDataTask, data: Data) {
 
         DispatchQueue.main.async {
             guard self.onShouldApply() else { return }

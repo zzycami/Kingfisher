@@ -29,6 +29,7 @@ import AppKit
 #else
 import UIKit
 #endif
+import YMHTTP
     
 
 /// KingfisherOptionsInfo is a typealias for [KingfisherOptionsInfoItem].
@@ -365,7 +366,7 @@ extension KingfisherParsedOptionsInfo {
 
 protocol DataReceivingSideEffect: AnyObject {
     var onShouldApply: () -> Bool { get set }
-    func onDataReceived(_ session: URLSession, task: SessionDataTask, data: Data)
+    func onDataReceived(_ session: YMURLSession, task: SessionDataTask, data: Data)
 }
 
 class ImageLoadingProgressSideEffect: DataReceivingSideEffect {
@@ -378,7 +379,7 @@ class ImageLoadingProgressSideEffect: DataReceivingSideEffect {
         self.block = block
     }
 
-    func onDataReceived(_ session: URLSession, task: SessionDataTask, data: Data) {
+    func onDataReceived(_ session: YMURLSession, task: SessionDataTask, data: Data) {
         guard self.onShouldApply() else { return }
         guard let expectedContentLength = task.task.response?.expectedContentLength,
                   expectedContentLength != -1 else
