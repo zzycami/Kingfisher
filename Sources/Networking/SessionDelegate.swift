@@ -150,23 +150,23 @@ class SessionDelegate: NSObject {
 }
 
 extension SessionDelegate: YMURLSessionDataDelegate {
-    func ymurlSession(_ session: YMURLSession, task: YMURLSessionTask, didReceive response: HTTPURLResponse, completionHandler: @escaping (YMURLSessionResponseDisposition) -> Void) {
-        guard let httpResponse = response as? HTTPURLResponse else {
-            let error = KingfisherError.responseError(reason: .invalidURLResponse(response: response))
-            onCompleted(task: task, result: .failure(error))
-            completionHandler(.cancel)
-            return
-        }
-
-        let httpStatusCode = httpResponse.statusCode
-        guard onValidStatusCode.call(httpStatusCode) == true else {
-            let error = KingfisherError.responseError(reason: .invalidHTTPStatusCode(response: httpResponse))
-            onCompleted(task: task, result: .failure(error))
-            completionHandler(.cancel)
-            return
-        }
-        completionHandler(.allow)
-    }
+//    func ymurlSession(_ session: YMURLSession, task: YMURLSessionTask, didReceive response: HTTPURLResponse, completionHandler: @escaping (YMURLSessionResponseDisposition) -> Void) {
+//        guard let httpResponse = response as? HTTPURLResponse else {
+//            let error = KingfisherError.responseError(reason: .invalidURLResponse(response: response))
+//            onCompleted(task: task, result: .failure(error))
+//            completionHandler(.cancel)
+//            return
+//        }
+//
+//        let httpStatusCode = httpResponse.statusCode
+//        guard onValidStatusCode.call(httpStatusCode) == true else {
+//            let error = KingfisherError.responseError(reason: .invalidHTTPStatusCode(response: httpResponse))
+//            onCompleted(task: task, result: .failure(error))
+//            completionHandler(.cancel)
+//            return
+//        }
+//        completionHandler(.allow)
+//    }
     
     func ymurlSession(_ session: YMURLSession, task: YMURLSessionTask, didReceive data: Data) {
         guard let task = self.task(for: task) else {
