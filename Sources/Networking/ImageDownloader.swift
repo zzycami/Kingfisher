@@ -30,7 +30,7 @@ import AppKit
 import UIKit
 #endif
 
-import YMHTTP
+import STURLSession
 
 typealias DownloadResult = Result<ImageLoadingResult, KingfisherError>
 
@@ -123,10 +123,10 @@ open class ImageDownloader {
     ///
     /// You could change the configuration before a downloading task starts.
     /// A configuration without persistent storage for caches is requested for downloader working correctly.
-    open var sessionConfiguration = YMURLSessionConfiguration.default {
+    open var sessionConfiguration = STURLSessionConfiguration.default {
         didSet {
             session.invalidateAndCancel()
-            session = YMURLSession(configuration: sessionConfiguration, delegate: sessionDelegate, delegateQueue: nil)
+            session = STURLSession(configuration: sessionConfiguration, delegate: sessionDelegate, delegateQueue: nil)
         }
     }
     
@@ -142,7 +142,7 @@ open class ImageDownloader {
 
     private let name: String
     private let sessionDelegate: SessionDelegate
-    private var session: YMURLSession
+    private var session: STURLSession
 
     // MARK: Initializers
 
@@ -158,7 +158,7 @@ open class ImageDownloader {
         self.name = name
 
         sessionDelegate = SessionDelegate()
-        session = YMURLSession(
+        session = STURLSession(
             configuration: sessionConfiguration,
             delegate: sessionDelegate,
             delegateQueue: nil)
@@ -240,7 +240,6 @@ open class ImageDownloader {
 
         // Creates default request.
         var request = NSMutableURLRequest(url: url, cachePolicy: NSURLRequest.CachePolicy.reloadIgnoringCacheData, timeoutInterval: downloadTimeout)
-        request.ym_skipSSLVerify = false
 //        request.httpShouldUsePipelining = requestsUsePipelining
 
         if let requestModifier = options.requestModifier {
@@ -267,8 +266,8 @@ open class ImageDownloader {
         if let existingTask = sessionDelegate.task(for: context.url) {
             downloadTask = sessionDelegate.append(existingTask, url: context.url, callback: callback)
         } else {
-            let sessionDataTask = session.task(with: context.request)
-//            sessionDataTask.priority = context.options.downloadPriority
+            let sessionDataTask = session.dataTask(with: context.request)
+            sessionDataTask.priority = context.options.downloadPriority
             downloadTask = sessionDelegate.add(sessionDataTask, url: context.url, callback: callback)
         }
         return downloadTask

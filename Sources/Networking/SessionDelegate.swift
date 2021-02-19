@@ -25,7 +25,7 @@
 //  THE SOFTWARE.
 
 import Foundation
-import YMHTTP
+import STURLSession
 
 // Represents the delegate object of downloader session. It also behave like a task manager for downloading.
 @objc(KFSessionDelegate) // Fix for ObjC header name conflicting. https://github.com/onevcat/Kingfisher/issues/1530
@@ -55,7 +55,7 @@ class SessionDelegate: NSObject {
     let onReceiveSessionTaskChallenge = Delegate<SessionTaskChallengeFunc, Void>()
 
     func add(
-        _ dataTask: YMURLSessionTask,
+        _ dataTask: STURLSessionTask,
         url: URL,
         callback: SessionDataTask.TaskCallback) -> DownloadTask
     {
@@ -85,7 +85,7 @@ class SessionDelegate: NSObject {
         return DownloadTask(sessionTask: task, cancelToken: token)
     }
 
-    private func cancelTask(_ dataTask: YMURLSessionTask) {
+    private func cancelTask(_ dataTask: STURLSessionTask) {
         lock.lock()
         defer { lock.unlock() }
         dataTask.cancel()
@@ -110,7 +110,7 @@ class SessionDelegate: NSObject {
         tasks[url] = nil
     }
 
-    private func task(for task: YMURLSessionTask) -> SessionDataTask? {
+    private func task(for task: STURLSessionTask) -> SessionDataTask? {
         lock.lock()
         defer { lock.unlock() }
 
@@ -149,27 +149,27 @@ class SessionDelegate: NSObject {
     }
 }
 
-extension SessionDelegate: YMURLSessionDataDelegate {
-//    func ymurlSession(_ session: YMURLSession, task: YMURLSessionTask, didReceive response: HTTPURLResponse, completionHandler: @escaping (YMURLSessionResponseDisposition) -> Void) {
-//        guard let httpResponse = response as? HTTPURLResponse else {
-//            let error = KingfisherError.responseError(reason: .invalidURLResponse(response: response))
-//            onCompleted(task: task, result: .failure(error))
-//            completionHandler(.cancel)
-//            return
-//        }
-//
-//        let httpStatusCode = httpResponse.statusCode
-//        guard onValidStatusCode.call(httpStatusCode) == true else {
-//            let error = KingfisherError.responseError(reason: .invalidHTTPStatusCode(response: httpResponse))
-//            onCompleted(task: task, result: .failure(error))
-//            completionHandler(.cancel)
-//            return
-//        }
-//        completionHandler(.allow)
-//    }
+extension SessionDelegate: STURLSessionDataDelegate {
+    func urlSession(_ session: STURLSession, dataTask: STURLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (STURLSession.ResponseDisposition) -> Void) {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            let error = KingfisherError.responseError(reason: .invalidURLResponse(response: response))
+            onCompleted(task: dataTask, result: .failure(error))
+            completionHandler(.cancel)
+            return
+        }
+
+        let httpStatusCode = httpResponse.statusCode
+        guard onValidStatusCode.call(httpStatusCode) == true else {
+            let error = KingfisherError.responseError(reason: .invalidHTTPStatusCode(response: httpResponse))
+            onCompleted(task: dataTask, result: .failure(error))
+            completionHandler(.cancel)
+            return
+        }
+        completionHandler(.allow)
+    }
     
-    func ymurlSession(_ session: YMURLSession, task: YMURLSessionTask, didReceive data: Data) {
-        guard let task = self.task(for: task) else {
+    func urlSession(_ session: STURLSession, dataTask: STURLSessionDataTask, didReceive data: Data) {
+        guard let task = self.task(for: dataTask) else {
             return
         }
         
@@ -182,7 +182,7 @@ extension SessionDelegate: YMURLSessionDataDelegate {
         }
     }
     
-    func ymurlSession(_ session: YMURLSession, task: YMURLSessionTask, didCompleteWithError error: Error?) {
+    func urlSession(_ session: STURLSession, task: STURLSessionTask, didCompleteWithError error: Error?) {
         guard let sessionTask = self.task(for: task) else { return }
 
         if let url = sessionTask.originalURL {
@@ -207,10 +207,12 @@ extension SessionDelegate: YMURLSessionDataDelegate {
                 result = .failure(KingfisherError.responseError(reason: .dataModifyingFailed(task: sessionTask)))
             }
         }
-        onCompleted(task: task, result: result)
+        DispatchQueue.main.async {
+            self.onCompleted(task: task, result: result)
+        }
     }
     
-    func ymurlSession(_ session: YMURLSession, task: YMURLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+    func urlSession(_ session: STURLSession, task: STURLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
         guard let sessionDataTask = self.task(for: task),
               let redirectHandler = Array(sessionDataTask.callbacks).last?.options.redirectHandler else
         {
@@ -225,11 +227,13 @@ extension SessionDelegate: YMURLSessionDataDelegate {
             completionHandler: completionHandler)
     }
     
-    private func onCompleted(task: YMURLSessionTask, result: Result<(Data, URLResponse?), KingfisherError>) {
+    private func onCompleted(task: STURLSessionTask, result: Result<(Data, URLResponse?), KingfisherError>) {
         guard let sessionTask = self.task(for: task) else {
             return
         }
         remove(sessionTask)
-        sessionTask.onTaskDone.call((result, sessionTask.callbacks))
+        DispatchQueue.main.async {
+            sessionTask.onTaskDone.call((result, sessionTask.callbacks))
+        }
     }
 }

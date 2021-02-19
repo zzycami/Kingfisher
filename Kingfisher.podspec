@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
   s.private_header_files = "Sources/Kingfisher.h"
 
   s.requires_arc = true
-  s.dependency  'YMHTTP'
+  s.dependency  'STURLSession'
   s.frameworks = "CFNetwork", "Accelerate"
   s.weak_frameworks = "SwiftUI", "Combine"
 end

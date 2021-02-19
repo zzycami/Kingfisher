@@ -25,7 +25,7 @@
 //  THE SOFTWARE.
 
 import Foundation
-import YMHTTP
+import STURLSession
 
 /// Represents a session data task in `ImageDownloader`. It consists of an underlying `URLSessionDataTask` and
 /// an array of `TaskCallback`. Multiple `TaskCallback`s could be added for a single downloading data task.
@@ -48,7 +48,7 @@ public class SessionDataTask {
 
     /// The underlying download task. It is only for debugging purpose when you encountered an error. You should not
     /// modify the content of this task or start it yourself.
-    public let task: YMURLSessionTask
+    public let task: STURLSessionTask
     private var callbacksStore = [CancelToken: TaskCallback]()
 
     var callbacks: [SessionDataTask.TaskCallback] {
@@ -73,7 +73,7 @@ public class SessionDataTask {
         return !callbacks.isEmpty
     }
 
-    init(task: YMURLSessionTask) {
+    init(task: STURLSessionTask) {
         self.task = task
         self.originalURL = task.originalRequest?.url
         mutableData = Data()
