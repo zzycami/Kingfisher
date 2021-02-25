@@ -240,7 +240,7 @@ open class ImageDownloader {
 
         // Creates default request.
         var request = NSMutableURLRequest(url: url, cachePolicy: NSURLRequest.CachePolicy.reloadIgnoringCacheData, timeoutInterval: downloadTimeout)
-//        request.httpShouldUsePipelining = requestsUsePipelining
+        request.httpShouldUsePipelining = requestsUsePipelining
 
         if let requestModifier = options.requestModifier {
             // Modifies request before sending.
