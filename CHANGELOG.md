@@ -2,6 +2,31 @@
 
 -----
 
+## [6.1.1 - SwiftUI Issues](https://github.com/onevcat/Kingfisher/releases/tag/6.1.1) (2021-02-17)
+
+#### Fix
+* Remove unnecessary queue dispatch when setting image result. This prevents image flickering when some situation. [#1615](https://github.com/onevcat/Kingfisher/pull/1615)
+* Now the `KF` builder methods also accept optional `URL` or `Source`. It aligns the syntax with the normal view extension methods. [#1617](https://github.com/onevcat/Kingfisher/pull/1617)
+* Fix an issue that wrong hash is calculated for `ImageBinder`. It might cause view state lost for a `KFImage`. [#1624](https://github.com/onevcat/Kingfisher/pull/1624)
+* Now the `ImageCache` will disable the disk storage when there is no free space on disk when creating the cache folder, instead of just crashing it. [#1628](https://github.com/onevcat/Kingfisher/pull/1628)
+* A workaround for `@State` lost when using a view inside another container in a `Lazy` stack or grid. [#1631](https://github.com/onevcat/Kingfisher/pull/1631)
+* Performance improvement for images with an non-up orientation in Exif when displaying in `KFImage`. [#1629](https://github.com/onevcat/Kingfisher/pull/1629)
+
+---
+
+## [6.1.0 - SwiftUI Rework](https://github.com/onevcat/Kingfisher/releases/tag/6.1.0) (2021-02-01)
+
+#### Add
+* Rewrite state management for `KFImage`. Now the image reloading works in a more stable way without task dispatching. [#1604](https://github.com/onevcat/Kingfisher/pull/1604)
+* Add `fade` and `forceTransition` modifier to `KFImage` to support built-in fade in effect when loading image in SwiftUI. [#1604](https://github.com/onevcat/Kingfisher/pull/1604)
+
+#### Fix
+* When an `ImageModifier` is applied, the modified image is not cached to memory cache anymore. The `ImageModifier` is intended to be used just before setting the image to a view and now it works as expected. [#1612](https://github.com/onevcat/Kingfisher/pull/1612)
+* Now `SwiftUI` and `Combine` are declared as weak link in podspec. This is a workaround for [some rare case build issue](https://stackoverflow.com/a/60198305). It does not affect supported deploy version of Kingfisher. [#1607](https://github.com/onevcat/Kingfisher/pull/1607)
+* Remove header file from podspec to allow Kingfisher built as a static framework in a Swift-ObjC mixed project. [#1608](https://github.com/onevcat/Kingfisher/pull/1608)
+
+---
+
 ## [6.0.1 - Bind & Hug](https://github.com/onevcat/Kingfisher/releases/tag/6.0.1) (2021-01-05)
 
 #### Fix
